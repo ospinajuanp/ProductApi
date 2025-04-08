@@ -1,6 +1,10 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using ProductApi.Services;
+using ProductApi.Validator;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Configurar Kestrel para escuchar en puertos HTTP y HTTPS
 builder.WebHost.ConfigureKestrel(options =>
@@ -19,6 +23,8 @@ builder.WebHost.ConfigureKestrel(options =>
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
