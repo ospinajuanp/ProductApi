@@ -21,7 +21,30 @@ namespace ProductApi.Controllers
 
         // GET: api/products
         [HttpGet]
-        public ActionResult<IEnumerable<Product>> GetAll() => Ok(_productService.GetAll());
+        public ActionResult<PagedResult<Product>> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var allProducts = _productService.GetAll().ToList();
+
+            var totalItems = allProducts.Count;
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var pagedProducts = allProducts
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+
+            var result = new PagedResult<Product>
+            {
+                Data = pagedProducts,
+                Page = page,
+                PageSize = pageSize,
+                TotalItems = totalItems,
+                TotalPages = totalPages
+            };
+
+            return Ok(result);
+        }
+
 
         // GET: api/products/{id}
         [HttpGet("{id}")]
