@@ -75,3 +75,41 @@ Actualmente, la API permite la creación y actualización de productos sin restr
 **Descripción del Problema:**
 
 Se ha identificado que el método GetAll en el servicio ProductService presenta problemas de rendimiento cuando la cantidad de productos en la base de datos es considerable. Actualmente, este método recupera todos los productos sin paginación, lo que puede generar una carga innecesaria en el servidor y tiempos de respuesta elevados.        
+
+
+
+
+## Cambios Realizados Durante la Prueba
+
+### ✅ Prueba 1: Corrección de Lógica de Descuento
+
+- **Archivo Modificado:** `Services/ProductService.cs` → Método `CalculateTotal`  
+- **Cambio:** Se eliminó el operador `>=` para que el descuento del 10% se aplique **solo cuando la cantidad sea estrictamente mayor a 10**, cumpliendo con la regla de negocio.
+
+---
+
+### ✅ Prueba 2: Implementación de Validaciones con FluentValidation
+
+- **Archivo Nuevo:** `Validator/ProductValidator.cs`  
+- **Archivo Modificado:** `Program.cs`  
+- **Cambios:**
+  - Se integró FluentValidation para validar los campos del modelo `Product`.
+  - Se agregaron las siguientes reglas:
+    - `Name`: requerido, máximo 100 caracteres.
+    - `Price`: mayor que 0.
+    - `Quantity`: entero positivo o cero.
+  - En `Program.cs` se añadieron las líneas:
+    ```csharp
+    builder.Services.AddFluentValidationAutoValidation();
+    builder.Services.AddValidatorsFromAssemblyContaining<ProductValidator>();
+    ```
+
+---
+
+### ✅ Prueba 3: Optimización de Datos con Paginación
+
+- **Archivo Nuevo:** `Models/Common/PagedResult.cs`  
+- **Archivo Modificado:** `Controllers/ProductsController.cs`  
+- **Cambio:** El método `GetAll()` ahora acepta parámetros opcionales `page` y `pageSize`, devolviendo datos paginados.  
+  - Si no se envían parámetros, devuelve la **primera página por defecto** con 10 productos.
+  - La respuesta incluye información sobre la página actual, total de productos y total de páginas.
